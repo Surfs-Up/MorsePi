@@ -1,4 +1,6 @@
-morse = {
+eng_to_morse = {
+    "":"",
+    " ":" ",
     "a":".-",
     "b":"-...",
     "c":"-.-.",
@@ -50,28 +52,6 @@ morse = {
     '"':".-..-.",
     "@":".--.-."
 }
-key_list = list(morse.keys())
-val_list = list(morse.values())
+morse_to_eng = {v:k for (k,v) in eng_to_morse.items()}
 
-def engToMorse(message):
-    line = message.split()
-    newLine = ""
-    for word in line:
-        newWord = ""
-        for letter in word:
-            newWord += morse[letter] + " "
-        newLine += newWord + "   "
-    return newLine
-
-def morseToEng(message):
-    line = message.split("   ")
-    newLine = ""
-    for word in line:
-        splitWord = word.split()
-        newWord = ""
-        for letter in splitWord:
-            index = val_list.index(letter)
-            newWord += key_list[index]
-        newLine += newWord + " "
-    return newLine
 

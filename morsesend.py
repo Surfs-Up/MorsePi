@@ -5,6 +5,7 @@ import time
 from lcd import LCD
 import translate
 import threading
+from translate import morse_to_eng
 GPIO.setwarnings(False)
 
 # 
@@ -40,10 +41,8 @@ class MorseEncoder:
     def add_click_to_msg(self,elapsed,buttonDown):
         if buttonDown:
             if 1.5<elapsed<3.5:
-                print("1.5 to 3.5")
                 self.send_message()
             elif 3.5<=elapsed:
-                print(">3.5")
                 self.send_message()
                 self.msg=" "
                 self.send_message()
@@ -73,7 +72,8 @@ class MorseEncoder:
     
     def send_message(self):
         
-        message = translate.morseToEng(self.msg)
+        message = morse_to_eng[self.msg]
+
         self.lcd.add_to_msg(message)
         self.msg = ""
         
