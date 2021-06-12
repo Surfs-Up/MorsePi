@@ -2,12 +2,12 @@ import RPi.GPIO as GPIO
 
 from time import sleep
 import time
-import lcd
+from lcd import LCD
 import translate
-
+import threading
 GPIO.setwarnings(False)
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(8,GPIO.OUT,initial = GPIO.LOW)
+
+# 
 
 # while True: # Run forever
 #     GPIO.output(8, GPIO.HIGH) # Turn on
@@ -15,49 +15,48 @@ GPIO.setwarnings(False)
 #     GPIO.output(8, GPIO.LOW)  # Turn off
 #     sleep(1)                  # Sleep for 1 second
 class MorseEncoder:
-    btn = 7
+    btn = 4
+    led = 14
     counter = 0
     msg = ""
     dot_threshold = 0.5
-    dash threshold = 2
+
     
     def __init__(self):
 
-        GPIO.setmode(GPIO.BOARD)
         GPIO.setup(MorseEncoder.btn,GPIO.IN)
+        GPIO.setup(8,GPIO.OUT,initial = GPIO.LOW)
         GPIO.add_event_detect(MorseEncoder.btn,GPIO.BOTH,callback=self.click,bouncetime=20)
         self.counter = 0
-        self.message = ""
+
         self.btn_start = 0
         self.btn_end = 0
-        self.lcd = lcd.LCD() 
+        self.lcd = LCD() 
 
         self.run()
 
+
     
-    def add_click_to_msg(self,elapsed){
-        if GPIO.input(self.btn)==0:
-            if 1<elapsed<3:
+    def add_click_to_msg(self,elapsed,buttonDown):
+        if buttonDown:
+            if 1.5<elapsed<3.5:
+                print("1.5 to 3.5")
                 self.send_message()
-            elif elapsed<5:
+            elif 3.5<=elapsed:
+                print(">3.5")
                 self.send_message()
-                self.message=" "
-                sef.send_message()
+                self.msg=" "
+                self.send_message()
             
         else:
-            if elapsed<0.5:
-                self.message+="."
+            if elapsed<self.dot_threshold:
+                self.msg+="."
             else:
-                self.message+="_"
-        print(self.message)
+                self.msg+="-"
+
             
             
         
-
-
-
-
-    }
 
         
     
@@ -65,18 +64,17 @@ class MorseEncoder:
         if GPIO.input(self.btn)==0:
             self.btn_start = time.time()
             elapsed = self.btn_start - self.btn_end
-            self.add_click_to_msg(elapsed)
+            self.add_click_to_msg(elapsed,True)
         else:
-            slef.btn_end = time.time()
+            self.btn_end = time.time()
             elapsed = self.btn_end-self.btn_start
-            self.add_click_to_msg(elapsed)
+            self.add_click_to_msg(elapsed,False)
             
     
     def send_message(self):
         
         message = translate.morseToEng(self.msg)
         self.lcd.add_to_msg(message)
-        print(message)
         self.msg = ""
         
     def run(self):

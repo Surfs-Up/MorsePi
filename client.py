@@ -2,8 +2,8 @@ import socket
 import threading
 
 PACKETSIZE = 64
-# SERVER = "192.168.1.55"
-SERVER = "127.0.0.1"
+SERVER = "192.168.1.55"
+#SERVER = "127.0.0.1"
 PORT = 5050
 FORMAT = 'utf-8'
 
