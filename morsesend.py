@@ -5,8 +5,9 @@ import time
 from lcd import LCD
 import translate
 import threading
-from translate import morse_to_eng
+from translate import morse_to_eng, eng_to_morse
 GPIO.setwarnings(False)
+from gpiozero import Buzzer
 
 # 
 
@@ -21,8 +22,16 @@ class MorseEncoder:
     counter = 0
     msg = ""
     dot_threshold = 0.5
+    buzzer = Buzzer(29)
 
-    
+    MSG = "lolxd"
+    DOT = 0.5
+    DASH = 1.5
+    SIGNAL_DELAY = 0.5
+    CHAR_DELAY = 1.5
+    WORD_DELAY = 3.5
+    SPACE = "   "
+
     def __init__(self):
 
         GPIO.setup(MorseEncoder.btn,GPIO.IN)
@@ -35,8 +44,6 @@ class MorseEncoder:
         self.lcd = LCD() 
 
         self.run()
-
-
     
     def add_click_to_msg(self,elapsed,buttonDown):
         if buttonDown:
@@ -52,12 +59,6 @@ class MorseEncoder:
                 self.msg+="."
             else:
                 self.msg+="-"
-
-            
-            
-        
-
-        
     
     def click(self,channel):
         if GPIO.input(self.btn)==0:
@@ -68,21 +69,42 @@ class MorseEncoder:
             self.btn_end = time.time()
             elapsed = self.btn_end-self.btn_start
             self.add_click_to_msg(elapsed,False)
-            
     
     def send_message(self):
-        
         message = morse_to_eng[self.msg]
-
         self.lcd.add_to_msg(message)
         self.msg = ""
-        
+
+    def morse_to_buzzer(self): 
+        morse = [eng_to_morse[c] for c in self.MSG]
+        prev = ''
+
+        for c in morse:
+            if c == self.SPACE:
+                if prev == c:
+                    sleep(self.WORD_DELAY)
+                else:
+                    sleep(self.WORD_DELAY - self.CHAR_DELAY)
+            else:
+                for s in c:
+                    if s == '.':
+                        self.buzzer.on()
+                        sleep(self.DOT)
+                        self.buzzer.off()
+                    elif s == '-':
+                        self.buzzer.on()
+                        sleep(self.DASH)
+                        self.buzzer.off()
+                
+                    sleep(self.SIGNAL_DELAY)
+
+                sleep(self.CHAR_DELAY - self.SIGNAL_DELAY)
+
+            prev = c
+
     def run(self):
         while True:
-            pass
-    
+            self.morse_to_buzzer(self)
 
-        
-        
 e = MorseEncoder()      
  
