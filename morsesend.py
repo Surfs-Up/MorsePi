@@ -7,12 +7,11 @@ import translate
 import threading
 from translate import morse_to_eng, eng_to_morse
 GPIO.setwarnings(False)
-from gpiozero import Buzzer
 
-# 
+ 
 
 # while True: # Run forever
-#     GPIO.output(8, GPIO.HIGH) # Turn on
+#     GPIO.output(8, GPIO.LOW) # Turn on
 #     sleep(1)                  # Sleep for 1 second
 #     GPIO.output(8, GPIO.LOW)  # Turn off
 #     sleep(1)                  # Sleep for 1 second
@@ -22,7 +21,6 @@ class MorseEncoder:
     counter = 0
     msg = ""
     dot_threshold = 0.5
-    buzzer = Buzzer(29)
 
     MSG = "lolxd"
     DOT = 0.5
@@ -32,10 +30,13 @@ class MorseEncoder:
     WORD_DELAY = 3.5
     SPACE = "   "
 
+    BUZZER_PORT = 17
+
     def __init__(self):
 
         GPIO.setup(MorseEncoder.btn,GPIO.IN)
         GPIO.setup(8,GPIO.OUT,initial = GPIO.LOW)
+        GPIO.setup(self.BUZZER_PORT, GPIO.OUT, initial = GPIO.LOW)
         GPIO.add_event_detect(MorseEncoder.btn,GPIO.BOTH,callback=self.click,bouncetime=20)
         self.counter = 0
 
@@ -88,14 +89,14 @@ class MorseEncoder:
             else:
                 for s in c:
                     if s == '.':
-                        self.buzzer.on()
+                        GPIO.output(self.BUZZER_PORT, GPIO.HIGH)
                         sleep(self.DOT)
-                        self.buzzer.off()
+                        GPIO.output(self.BUZZER_PORT, GPIO.LOW)
                     elif s == '-':
-                        self.buzzer.on()
+                        GPIO.output(self.BUZZER_PORT, GPIO.HIGH)
                         sleep(self.DASH)
-                        self.buzzer.off()
                 
+                        GPIO.output(self.BUZZER_PORT, GPIO.LOW)
                     sleep(self.SIGNAL_DELAY)
 
                 sleep(self.CHAR_DELAY - self.SIGNAL_DELAY)
@@ -104,7 +105,7 @@ class MorseEncoder:
 
     def run(self):
         while True:
-            self.morse_to_buzzer(self)
+            self.morse_to_buzzer()
 
 e = MorseEncoder()      
  
