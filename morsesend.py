@@ -103,6 +103,8 @@ class MorseEncoder:
 
             prev = c
 
+	msg = ''
+
     def run(self):
         while True:
             self.morse_to_buzzer()
