@@ -1,20 +1,14 @@
-import RPi.GPIO as GPIO
-
 from time import sleep
 import time
+import RPi.GPIO as GPIO
+
+from client import Client
 from lcd import LCD
 import translate
-import threading
 from translate import morse_to_eng, eng_to_morse
+
 GPIO.setwarnings(False)
 
- 
-
-# while True: # Run forever
-#     GPIO.output(8, GPIO.LOW) # Turn on
-#     sleep(1)                  # Sleep for 1 second
-#     GPIO.output(8, GPIO.LOW)  # Turn off
-#     sleep(1)                  # Sleep for 1 second
 class MorseEncoder:
     btn = 4
     led = 14
@@ -73,8 +67,13 @@ class MorseEncoder:
     
     def send_message(self):
         message = morse_to_eng[self.msg]
+
+        # display onto lcd
         self.lcd.add_to_msg(message)
         self.msg = ""
+
+        # send to server
+        Client.instance.send_letter(message)
 
     def morse_to_buzzer(self): 
         morse = [eng_to_morse[c] for c in self.MSG]
@@ -108,6 +107,4 @@ class MorseEncoder:
         while True:
             pass
             #self.morse_to_buzzer()
-
-e = MorseEncoder()      
  
