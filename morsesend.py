@@ -102,12 +102,12 @@ class MorseEncoder:
                 sleep(self.CHAR_DELAY - self.SIGNAL_DELAY)
 
             prev = c
-
-	msg = ''
+            msg = ''
 
     def run(self):
         while True:
-            self.morse_to_buzzer()
+            pass
+            #self.morse_to_buzzer()
 
 e = MorseEncoder()      
  
