@@ -1,5 +1,6 @@
 from time import sleep
 import time
+import asyncio
 import RPi.GPIO as GPIO
 
 from client import Client
@@ -31,15 +32,12 @@ class MorseEncoder:
         GPIO.setup(MorseEncoder.btn,GPIO.IN)
         GPIO.setup(8,GPIO.OUT,initial = GPIO.LOW)
         GPIO.setup(self.BUZZER_PORT, GPIO.OUT, initial = GPIO.LOW)
-        GPIO.add_event_detect(MorseEncoder.btn,GPIO.BOTH,callback=self.click,bouncetime=20)
         self.counter = 0
 
         self.btn_start = 0
         self.btn_end = 0
         self.lcd = LCD() 
 
-        self.run()
-    
     def add_click_to_msg(self,elapsed,buttonDown):
         if buttonDown:
             if 1.5<elapsed<3.5:
@@ -73,7 +71,8 @@ class MorseEncoder:
         self.msg = ""
 
         # send to server
-        Client.instance.send_letter(message)
+        print("sending to server")
+        asyncio.run(Client.instance.send_letter(message))
 
     def morse_to_buzzer(self): 
         morse = [eng_to_morse[c] for c in self.MSG]
@@ -103,7 +102,8 @@ class MorseEncoder:
             prev = c
             msg = ''
 
-    def run(self):
+    async def run(self):
+        GPIO.add_event_detect(MorseEncoder.btn,GPIO.BOTH,callback=self.click,bouncetime=20)
         while True:
             pass
             #self.morse_to_buzzer()

@@ -1,5 +1,5 @@
 import asyncio
-import websockets
+import websocket
 
 class MessageType:
     DISCONNECT = "DISCONNECT"
@@ -17,19 +17,31 @@ class Client:
         self.connection_string = connection_string
         self.clientsock = None
 
-
     async def start_client(self):
-        self.clientsock = await websockets.connect(self.connection_string)
+        print("Starting client")
+        self.clientsock = websocket.WebSocketApp(
+                self.connection_string,
+                on_open = self.on_open
+        )
+        self.clientsock.run_forever()
+
+        # async with websockets.connect(self.connection_string) as sock:
+        #     self.clientsock = sock
+
+        #     while True:
+        #         inp = input("enter message")
+        #         await self.send_letter(inp)
+
+    def on_open(self):
         while True:
-            inp = input("enter message")
-            await self.send_letter(inp)
+            pass
 
     async def send_message(self, msg_type, msg):
         packet = Client.pack_message(msg_type, msg)
         await self.clientsock.send(packet)
         
     async def send_letter(self, letter):
-        assert len(letter) == 1, "Send letter should be sending a single letter"
+        # assert len(letter) == 1, f"Send letter should be sending a single letter, currently sending: {letter}"
 
         await self.send_message(MessageType.LETTER, letter)
 
